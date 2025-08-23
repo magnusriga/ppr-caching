@@ -1,0 +1,30 @@
+{
+  "name": "ppr",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build-default": "next build --turbopack",
+    "build": "rm -rf .next .turbo cache && next build --debug-prerender && cp -r public .next/standalone/ && cp -r .next/static .next/standalone/.next",
+    "start-old": "next start",
+    "start": "set -a && source ./.env.local && PORT=3001 NODE_ENV=production node .next/standalone/server.js",
+    "lint": "biome check",
+    "format": "biome format --write"
+  },
+  "dependencies": {
+    "@fortedigital/nextjs-cache-handler": "2.1.0-canary10",
+    "next": "15.5.1-canary.4",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "redis": "^5.8.2"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.2.0",
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}
