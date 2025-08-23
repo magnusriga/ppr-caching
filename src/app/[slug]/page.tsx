@@ -1,3 +1,5 @@
+"use cache";
+
 import Image from "next/image";
 import { Suspense } from "react";
 import ChildComponent from "./child-component";

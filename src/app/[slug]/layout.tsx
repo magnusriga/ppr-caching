@@ -1,3 +1,5 @@
+"use cache";
+
 import { Suspense } from "react";
 
 /**
@@ -35,22 +37,42 @@ import { Suspense } from "react";
  *   - MUST have `generateStaticParams()`.
  *   - MUST have minimum ONE value, empty array does NOT work.
  *   - Even if `[slug]` was further down, i.e. `sub/[slug]`.
- *   - WHY???
+ *   - BECAUSE PPR ONLY applies to paths pre-rendered with `generateStaticParams()`.
+ *   - BECAUSE, dynamic routes are dynamic - The way to tell Next.js to
+ *     pre-render them, including partially-prerendering components,
+ *     is to use `generateStaticParams()`.
+ * - Unfortunateloy, components are not cached by PPR, if not from path pre-rendered
+ *   with `generateStaticParams()`.
  *
  * CACHE TAKEAWAYS
+ * - `generateStaticParams()`
+ *   - ONLY caches, runtime, dynamic paths prerendered in `generateStaticParams()`.
+ *   - Thus, `generateStaticParams()` is used to instruct Next.js which dynamic paths
+ *     should be cahced runtime.
+ *   - With PPR, empty array does NOT work, CANNOT cache non-specified paths runtime.
+ *   - Possible to cahce paths from `generateStaticParams()` build-time,
+ *     using `instrumentation.ts`.
  * - `use cache`:
- *   - NOT NEEDED, ATOMATICALLY CACHES BOTH `layout.tsx` and `page.tsx`.
+ *   - NOT NEEDED, ATOMATICALLY CACHES BOTH `layout.tsx` and `page.tsx`,
+ *     if path in `generateStaticParams()`.
  *   - Even if build output does not mention `revalidate` and `expire`.
- *   - IRRELEVANT if any component has uncached `fetch()`, `[slug]/<path>` ALWAYS CACHED.
- *     despite no `use cache`.
- *   `page.tsx` and `layout.tsx`.
- *   - `use cache` in parent `layout.tsx` is NOT ENOUGH.
+ *   - IRRELEVANT if any component has uncached `fetch()`, `[slug]/<path>` ALWAYS CACHED,
+ *     despite no `use cache`, if `slug` in `generateStaticParams()`.
+ * - Unfortunately:
+ *   - CANNOT cache dynamic routes, as/when visited first time.
  *
  * TAKEAWAYS: `cacheComponents: true`
  * - `generateStaticParams()`
- *    - `generateStaticParams()` cannot depend on uncached | request data,
- *       e.g. `fetch()` | `cookies()` | `params`, unless at least ONE other
- *       `layout.tsx`, or the `page.tsx`, of segment, depends on uncached | request data.
+ *    - With `cacheComponents: true`, `generateStaticParams()` cannot depend on
+ *      uncached | request data, e.g. `fetch()` | `cookies()` | `params`,
+ *      unless at least ONE other `layout.tsx`, or the `page.tsx`, of segment,
+ *      depends on uncached | request data.
+ *    - Error also happens when `generateStaticParams()` does NOT depend on uncached data.
+ *    - Error only happens when visiting paths prerendered with `generateStaticParams()`,
+ *      thus new path not from `generateStaticParams()` works fine.
+ *    - Unfortunateloy, components are not cached by PPR, if not pre-rendered with
+ *      `generateStaticParams()`.
+ *    - See: https://nextjs.org/docs/messages/next-prerender-dynamic-metadata
  *    - ERROR:
  *      - Route "/[slug]/foo" has a `generateMetadata` that depends on Request data
  *        (`cookies()`, etc...) or uncached external data (`fetch(...)`, etc...) when
@@ -58,7 +80,6 @@ import { Suspense } from "react";
  *        See more info here:
  *        https://nextjs.org/docs/messages/next-prerender-dynamic-metadata
  *    - PROBLEM:
- *      - Error also happens when `generateStaticParams()` does NOT depend on uncached data.
  *
  * Scenarios:
  * - SETUP:
