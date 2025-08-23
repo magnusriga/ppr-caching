@@ -32,9 +32,9 @@ import { Suspense } from "react";
  * - NOTE: No matter where I place `use cache`, at component or file level,
  *   it will NOT write cache, when coming from `NextResponse.rewrite(..)`.
  *
- * PPR TAKEAWAYS
- * - `ppr: true`:
- *   - MUST have `generateStaticParams()`.
+ * TAKEAWAYS: `cacheComponents: true`:
+ * - `generateStaticParams()`
+ *   - MUST have `generateStaticParams()`, if using dynamic routes.
  *   - MUST have minimum ONE value, empty array does NOT work.
  *   - Even if `[slug]` was further down, i.e. `sub/[slug]`.
  *   - BECAUSE PPR ONLY applies to paths pre-rendered with `generateStaticParams()`.
@@ -43,6 +43,27 @@ import { Suspense } from "react";
  *     is to use `generateStaticParams()`.
  * - Unfortunateloy, components are not cached by PPR, if not from path pre-rendered
  *   with `generateStaticParams()`.
+ *
+ * TO EXPLORE:
+ * - If we had not used ppr, what would happen?
+ * - 'use cahce' at component or function level?
+ * - Build shows that both [slug]/ and fooz/ (from `generateStaticParams()`),
+ *   are partially pre-rendered.
+ * - /[slug] in cache:
+ *   - `layout.tsx`, with template hole for page.
+ *   - Does NOT contain `page.tsx` cache, thus no runtime caching of page.
+ * - /fooz in cache:
+ *   - `layout.tsx`, INCLUDING full page cache.
+ * - `rewrite()`:
+ *   - Never generates `/fooz` cache
+ *   - Only `/[slug]` cache.
+ *   - Thus, only cahces `layout.tsx` with template hole for `page.tsx` to be
+ *     rendered dynamically runtime.
+ * - If `/fooz` directly in address bar, or used redirect(), then `/fooz` would be cached,
+ *   including full `page.tsx`.
+ * - NOTE: Massive problem, need a way to cache pages dynamically.
+ *
+ *
  *
  * CACHE TAKEAWAYS
  * - `generateStaticParams()`
@@ -164,9 +185,9 @@ import { Suspense } from "react";
  * ===========================
  */
 
-export async function generateStaticParams() {
-  return [{ slug: "fooz" }];
-}
+// export async function generateStaticParams() {
+//   return [{ slug: "fooz" }];
+// }
 
 export default async function SlugLayout({ children }: LayoutProps<"/[slug]">) {
   return (

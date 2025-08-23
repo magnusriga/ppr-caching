@@ -16,10 +16,9 @@ const nextConfig: NextConfig = {
   experimental: {
     cacheComponents: true, // Required for cacheLife and cacheTag
     mdxRs: true,
-    ppr: true,
-    serverComponentsHmrCache: true, // Cache fetch in Server Components, to reduce API calls.
+    // ppr: true,
+    // serverComponentsHmrCache: true, // Cache fetch in Server Components, to reduce API calls.
     useCache: true,
-
     // staleTimes: {
     //   dynamic: 0, // TODO: Consider also caching dynamic pages, client side.
     //   static: 300, // Caches static page components for 5 minutes (60 * 5), just like layouts.
