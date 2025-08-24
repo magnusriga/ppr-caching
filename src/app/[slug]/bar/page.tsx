@@ -1,5 +1,3 @@
-"use cache";
-
 // export default async function Page({ params }: PageProps<"/[slug]/bar">) {
 export default async function Page() {
   // const { slug } = await params;

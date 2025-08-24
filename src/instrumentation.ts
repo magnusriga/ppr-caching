@@ -3,7 +3,10 @@ export async function register() {
     const { registerInitialCache } = await import(
       "@fortedigital/nextjs-cache-handler/instrumentation"
     );
-    const CacheHandler = (await import("../cache-handler.mjs")).default;
+    const CacheHandler = (await import("../cache-handler-forte.mjs")).default;
     await registerInitialCache(CacheHandler);
   }
+
+  // Instrumentation disabled - not needed for custom cache handler
+  // console.log("[INSTRUMENTATION] Skipped - using custom cache handler only");
 }

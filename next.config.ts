@@ -3,8 +3,8 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   /* config options here */
 
-  cacheHandler: require.resolve("./cache-handler.mjs"),
-  cacheMaxMemorySize: 0,
+  cacheHandler: require.resolve("./cache-handler-forte.mjs"),
+  // cacheMaxMemorySize: 0,
 
   // cacheHandler:
   //   process.env.NODE_ENV === "production"
@@ -13,12 +13,20 @@ const nextConfig: NextConfig = {
 
   // cacheMaxMemorySize: process.env.NODE_ENV === "production" ? 0 : undefined,
 
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "raw.githubusercontent.com",
+        pathname: "/PokeAPI/sprites/**",
+      },
+    ],
+  },
+
   experimental: {
-    cacheComponents: true, // Required for cacheLife and cacheTag
     mdxRs: true,
-    // ppr: true,
+    ppr: true,
     // serverComponentsHmrCache: true, // Cache fetch in Server Components, to reduce API calls.
-    useCache: true,
     // staleTimes: {
     //   dynamic: 0, // TODO: Consider also caching dynamic pages, client side.
     //   static: 300, // Caches static page components for 5 minutes (60 * 5), just like layouts.

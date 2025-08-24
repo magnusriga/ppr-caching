@@ -73,8 +73,8 @@ CacheHandler.onCreation(() => {
     const lruCache = createLruHandler();
 
     if (!redisClient?.isReady) {
-      console.error(
-        "WARNING <----> Failed to initialize caching layer <----->",
+      console.warn(
+        "WARNING <----> Falling back to LRU handler because Redis client is not available. <----->",
       );
       global.cacheHandlerConfigPromise = null;
       global.cacheHandlerConfig = { handlers: [lruCache] };

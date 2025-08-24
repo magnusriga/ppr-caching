@@ -58,7 +58,7 @@ export default async function middleware(
     // const newUrl = new URL(`/${subdomain}${pathname}`, `http://${hostHeader}`);
     const newUrl = new URL(`/${subdomain}${pathname}`, req.url);
     console.log(`Rewriting to ${newUrl}`);
-    return NextResponse.rewrite(newUrl);
+    return NextResponse.redirect(newUrl);
 
     // console.log(`Rewriting to ${rewriteUrl}`);
     //

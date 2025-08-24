@@ -1,8 +1,109 @@
-"use cache";
-
 import { Suspense } from "react";
+import Nav from "./nav";
 
 /**
+ * ===========================
+ * FLOW
+ * ===========================
+ * 1. Build: Static routes | components (if PPR), are saved to DISK: `.next/cache`.
+ * 2. Start:
+ *    - `instrumentation.ts` prepopulates Redis, from DISK cache.
+ *    - FAILS to populate fetch cache, becasue `fetch-data` NOT written to DISK build time.
+ *    - If not using custom `cacheHandler`, `fetch-data` IS written to DISK, build time.
+ *    - From there, it should be manually copied to `standalone/.next/cahce`.
+ * 3. Visit: Prerendered path
+ *    - Page served form Redis cache.
+ *    - NO re-render of ANY component (unless PPR > dynamic components)
+ *    - FAST: < 250ms to DOMContentLoaded.
+ * 3. Visit: NOT prerendered path
+ *    - NORMALLY: Page is cached in Redis, on first visit.
+ *    - BUT: `rewrite()` prevents runtime caching.
+ *    - Thus, page re-renders all components (unless PPR and some pre-rendered).
+ *    - Fetch gets data from cahce, so NO re-fetch.
+ *    - SLOW: > 600ms to DOMContentLoaded.
+ * 4. Visit again after rebuild
+ *    - Pages are updated in cache.
+ *    - Despite key not having build prefix.
+ * - IMPORTANT 1
+ *   - TODO|: Need `rewrite()` to write cache, or switch to redirect.
+ *   - Otherwise, clients' apps will NOT be cached.
+ * - IMPORTANT 2
+ *   - Wrap dynamic components in `<Suspense>`. <-- Clean up `<Suspense>`.
+ *   - Use PPR.
+ *   - Check: PPR also caches individual components of dynamic segments at runtime?
+ * - IMPORTANT 3
+ *   - With `cacheHandler`, `fetch-data` NOT written to DISK build time.
+ *   - TODO|: FIND FIX > update copy in Dockerfile and `package.json` scripts.
+ * - IMPORTANT 4
+ *   - `instrumentations.ts` is unable to prepopulate pages from DISK,
+ *     as they are suffixed `prefetch.rsc`, and not `.rsc`, when `ppr: true`.
+ *   - TODO|: FIND FIX > `fortedigital/nextjs-cache-handler` issue?
+ * - IMPORTANT 5
+ *   - Build prefix in cache key, so staging does not overwrite production cache entries?
+ *   - TODO|: IMPLEMENT.
+ *   - But we use same version number of app for both staging and production.
+ *   - Not sure if that is different from build prefix.
+ *   - See: Nesha/nextjs-cache-handler#15
+ * - IMPORTANT 6
+ *   - Find way to update revalidate and staleTime of pages, defaulting to 10 min (600s)?
+ *   - TODO|: FIX > staleTimes in `next.config.ts`?
+ *
+ * ===========================
+ * IMPORTANT
+ * ===========================
+ * - CANNOT USE `cacheComponents: true` | `use cache`.
+ *   - `use cache` uses in-memory cache, and not `cacheHandler`.
+ *   - Instead, use `fetch` cache, and `unstable_cache` for non-fetch data,
+ *     both use `cacheHandler`.
+ * - Dynamic paths
+ *   - Visiting dynamic paths, i.e. not in `generateStaticParams`: CACHED runtime.
+ *   - Works for fully static routes, AND for partially static routes with holes for
+ *     dynamic content (when using PPR).
+ *   - UNLESS `rewrite()` in `middleware.ts`: BREAKS runtime caching of dynamic paths.
+ *   - Visible page loads as fast for staticalliy generated paths (`generateStaticParams`),
+ *     as for dynamic paths.
+ *   - DIFFERENCES:
+ *     - Static paths:
+ *       - RSC payload cached in CDN and browser.
+ *       - Headers: `s-maxage=31536000`.
+ *     - Dynamic paths:
+ *       - RSC payload NOT cached in CDN | browser.
+ *       - Headers: `private, no-cache, no-store, max-age=0, must-revalidate`.
+ *     - NOTE|:
+ *       - Document never cached in CDN | browser.
+ * - `rewrite()`
+ *   - `rewrite()` in `middleware.ts`: Only build-time pre-rendered paths placed in CACHE.
+ *   - Runtime caching of dynamic paths BROKEN by `rewrite()`.
+ *   - TODO|: FIX, either via headers or just using `redirect()`.
+ * - PPR
+ *   - Caches entire routes, with placeholders for dynamic components.
+ *   - Both static routes, from `generateStaticParams()`, and dynamic routes.
+ *   - Dynamic routes are cached runtime, when visited.
+ *   - Just like fully static routes, just with placeholders for dynamic components.
+ *   - Thus, not caching individual components, but entire routes, with placeholders.
+ *   - WORKS REALLY WELL.
+ * - PPR: These lead to dynamic rendering, and MUST be in `<Suspense>`:
+ *   - `await searchParams` <-- `params` is OK.
+ *   - `await cookies()`
+ *   - `await headers()`
+ *   - `await connnection()`
+ *   - `draftMode`
+ *   - `unstable_noStore()`
+ *   - `fetch()` with `{ cache: no-store }` <-- Regular `fetch()` OK, still caches routes.
+ * - Data fetches
+ *   - Caching data fetches is NOT pre-requisite for caching routes, fully | partially (PPR).
+ *   - Even though docs says so (Full Route Cache).
+ *   - As long no fetch is `{ cache: no-store }`, routes are cached.
+ *   - Same for PPR and fully static routes.
+ * - Dynamic API
+ *   - DOMContentLoaded: > 600ms
+ *   - BUT: Still equally fast LCP
+ *   - No visible speed difference.
+ *   - RSC loads in same time as without dynamic API: 500ms - 1s
+ *   - Something NOT VISIBLE, is making document loading slower.
+ *
+ *
+ *
  * ===========================
  * CACHE NOTES
  * ===========================
@@ -32,6 +133,13 @@ import { Suspense } from "react";
  * - NOTE: No matter where I place `use cache`, at component or file level,
  *   it will NOT write cache, when coming from `NextResponse.rewrite(..)`.
  *
+ * TRIED
+ * - Removing `ppr: true` from `next.config.ts`
+ *   - NO change.
+ *   - Still need `generateStaticParams()`, with at least one value,
+ *     when `cacheComponents: true`.
+ *   - Perhaps because `cacheComponents: true` implies `ppr: true`.
+ *
  * TAKEAWAYS: `cacheComponents: true`:
  * - `generateStaticParams()`
  *   - MUST have `generateStaticParams()`, if using dynamic routes.
@@ -43,9 +151,26 @@ import { Suspense } from "react";
  *     is to use `generateStaticParams()`.
  * - Unfortunateloy, components are not cached by PPR, if not from path pre-rendered
  *   with `generateStaticParams()`.
+ * - `cacheCompnents: true` and `use cache` implies `ppr: true`???
+ *
+ * `use cache`
+ * - https://nextjs.org/docs/app/api-reference/directives/use-cache#use-cache-at-runtime
+ * - `use cache` uses server-side in-memory cache, not custom `cacheHandler`.
+ * - `use cache` at page | layout for prerendering, but these already prerendered by default,
+ *   if no dynamic APIs | `fetch` with `no-store`.
+ * - Lastly, not sure how server-side in-memory cache works in serverless.
+ * - CONCLUSION: AVOID `use cache`, breaks caching in cluster.
  *
  * TO EXPLORE:
- * - If we had not used ppr, what would happen?
+ *
+ * NOTE: It incorrectly uses cache-handler on build, so .next/cache is not
+ * populated with fetch-cache and cannot be compied over for insstrumentation,
+ * using `useFileSystem` does not work.
+ * - Make a post on forte about filesystem cache not working.
+ * NOTE: It seems to use LRU (in-memory) cache for `use cache`?
+ *
+ * - Check if going to `/fooz/foo` will cache page, with / withtout fetch().
+ * - If works, then use redirect and live with url format?
  * - 'use cahce' at component or function level?
  * - Build shows that both [slug]/ and fooz/ (from `generateStaticParams()`),
  *   are partially pre-rendered.
@@ -64,6 +189,16 @@ import { Suspense } from "react";
  * - NOTE: Massive problem, need a way to cache pages dynamically.
  *
  *
+ * `instrumentation.ts`
+ * - Normally:
+ *   - Buld time: Cache is stored ON DISK ONLY, in `.next/cache`, BYPASSING `CacheHandler`.
+ *   - DISK cache lives in Docker image, pushed to all containers on deployment.
+ *   - When segment is visited, `CacheHandler` (Redis cache) is populated from DISK cache.
+ *   - Does not matter which container handles SET request, as all GET from same Redis.
+ * - `instrumentation.ts`
+ *   - Used to pre-populate cache with initial data, when application starts.
+ *   - Saves having to wait for cache population on first visit.
+ *
  *
  * CACHE TAKEAWAYS
  * - `generateStaticParams()`
@@ -71,8 +206,6 @@ import { Suspense } from "react";
  *   - Thus, `generateStaticParams()` is used to instruct Next.js which dynamic paths
  *     should be cahced runtime.
  *   - With PPR, empty array does NOT work, CANNOT cache non-specified paths runtime.
- *   - Possible to cahce paths from `generateStaticParams()` build-time,
- *     using `instrumentation.ts`.
  * - `use cache`:
  *   - NOT NEEDED, ATOMATICALLY CACHES BOTH `layout.tsx` and `page.tsx`,
  *     if path in `generateStaticParams()`.
@@ -152,6 +285,65 @@ import { Suspense } from "react";
  *   - Fix:
  *     - `use cache` in `[slug]/foo/page.tsx` <-- Did NOT work for `await params`.
  *     - `[slug]/layout.tsx`: Wrap `children` in `<Suspense>`.
+ * * THREE
+ *   - Setup
+ *     - NO `cacheComponents: true`, `ppr: true`, `use-cache: true`.
+ *     - No dynamic APIs | uncached data fetches.
+ *     - `generateStaticParams()`: `{ slug: "fooz" }`.
+ *   - Result
+ *     - HTML response headers: `s-maxage=600, stale-while-revalidate=31535400`
+ *     - RSC response headers: `s-maxage=600, stale-while-revalidate=31535400`
+ *     - Pre-rendered routes (from `generateStaticParams`): ALL CACHE HIT
+ *     - NON-pre-rendered routes: NOT CACHED runtime, when visited.
+ *     - Normally, runtime caching of dynamic paths WORKS, but `rewrite` breaks it.
+ *   - IMPORTANT
+ *     - Due to `rewrite()`, dynamic paths, not prerendered with `generateStaticParams`,
+ *       NOT cached when visited.
+ *     - Thus, ONLY ONE path cached (from prerender).
+ *     - Prerendered routes no re-render, FAST: < 250ms to DOMContentLoaded.
+ *     - Dynamic routes must re-render, SLOW: > 600ms to DOMContentLoaded.
+ *     - Fetch is still cached in all cases, but re-render SLOW.
+ * * FOUR:
+ *   - Setup
+ *     - Same as THREE, except: Dynamic API
+ *     - NO `cacheComponents: true`, `ppr: true`, `use-cache: true`.
+ *     - Dynamic API in `nav`, within `layout.tsx`, wrapped in `<Suspense>`.
+ *   - Result
+ *     - NO CACHING of ANY route.
+ *     - NOT EVEN prerendered route from `generateStaticParams()`.
+ * * FIVE:
+ *   - Setup
+ *     - Same as THREE, except: `ppr: true`.
+ *     - `ppr: true`
+ *     - NO dynamic APIs | uncached data fetches.
+ *   - Result
+ *     - Almost same as THREE.
+ *     - Every pre-rendered path is cached.
+ *     - Every dynamic path, not pre-rendered, is NOT cached if `rewrite()`.
+ *     - Dynamic pats cached, if no `rewrite()`.
+ *     - JUST LIKE WITHOUT PPR.
+ *     - BUT: Added NEW cached entry: `/[slug]`
+ *   - `/[slug]`
+ *     - Only contains `lalyout.tsx` with template hole for `page.tsx`.
+ *     - Probably adds entry up to first `<Suspense>` boundary.
+ *     - And entries for all pre-rendered paths
+ *     - What about dynamic paths???
+ *   - IMPORTANT:
+ *     - `instrumentations.ts` is unable to prepopulate pages from DISK,
+ *       as they are suffixed `prefetch.rsc`, and not `.rsc`, when `ppr: true`.
+ * * SIX:
+ *   - Setup
+ *     - Same as THREE, except: `ppr: true` + Dynamic API.
+ *     - `ppr: true`
+ *     - Dynamic API in `nav`, within `layout.tsx`, wrapped in `<Suspense>`.
+ *   - Result
+ *     - SAME as THREE and FIVE.
+ *     - EXCEPT: Placeholder for `nav`.
+ *     - FAST when page in cache: < 250ms to DOMContentLoaded.
+ *     - SLOW when page NOT in cache, despite fetch-data in cache: > 600ms to DOMContentLoaded
+ *     - WORKS WELL.
+ *
+ *
  *
  * Links:
  * - https://nextjs.org/docs/messages/prerender-error
@@ -185,17 +377,17 @@ import { Suspense } from "react";
  * ===========================
  */
 
-// export async function generateStaticParams() {
-//   return [{ slug: "fooz" }];
-// }
+export async function generateStaticParams() {
+  return [{ slug: "fooz" }];
+}
 
 export default async function SlugLayout({ children }: LayoutProps<"/[slug]">) {
   return (
-    <div>
-      {/* OK: */}
-      LAYOUT<Suspense>{children}</Suspense>
-      {/* NOT OK: */}
-      {/* LAYOUT{children} */}
+    <div className="p-4">
+      <Suspense fallback={<div>Loading navigation...</div>}>
+        <Nav />
+      </Suspense>
+      <Suspense>{children}</Suspense>
     </div>
   );
 }
