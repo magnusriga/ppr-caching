@@ -15,7 +15,7 @@
   "dependencies": {
     "@fortedigital/nextjs-cache-handler": "2.1.0-canary10",
     "@trieb.work/nextjs-turbo-redis-cache": "^1.8.1",
-    "next": "15.5.1-canary.4",
+    "next": "15.5.1-canary.7",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "redis": "^5.8.2"
