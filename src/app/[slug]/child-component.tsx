@@ -7,6 +7,7 @@ export default async function ChildComponent({ slug }: { slug: string }) {
     <>
       <h1>Child Component - Slug: {slug}</h1>
       <hr />
+      <p>HEEEEEELOOOOOOOOOOO **** IN PAGE CACHE???</p>
       {/* <div>Child Component - Headers from next: {next_headers}</div> */}
     </>
   );
