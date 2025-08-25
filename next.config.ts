@@ -4,13 +4,12 @@ const nextConfig: NextConfig = {
   /* config options here */
 
   cacheHandler: require.resolve("./cache-handler-forte.mjs"),
-  // cacheMaxMemorySize: 0,
 
   // cacheHandler:
   //   process.env.NODE_ENV === "production"
   //     ? require.resolve("./cache-handler.mjs")
   //     : undefined,
-
+  //
   // cacheMaxMemorySize: process.env.NODE_ENV === "production" ? 0 : undefined,
 
   images: {
@@ -26,6 +25,36 @@ const nextConfig: NextConfig = {
   experimental: {
     mdxRs: true,
     ppr: true,
+    // useCache: true,
+
+    /**
+     * Enables: `ppr`, `use cache`, `cacheLife`, `cacheTag`.
+     */
+    // cacheComponents: true,
+
+    /**
+     * Custom profiles for `cacheLife`.
+     */
+    // cacheLife: {
+    //   frequent: {
+    //     stale: 600,
+    //     revalidate: 600, // Set higher than `stale`?
+    //     expire: 86400, // 24 hours.
+    //   },
+    // },
+
+    /**
+     * Setting for `use cache`.
+     * Usage in file: `use cache: custom`.
+     */
+    // cacheHandlers: {
+    //   custom: require.resolve("./cache-handler-forte.mjs"),
+    //   default: require.resolve("./cache-handler-forte.mjs"),
+    //   remote: require.resolve("./cache-handler-forte.mjs"),
+    //   static: require.resolve("./cache-handler-forte.mjs"),
+    //   // [handlerName: string]: string | undefined
+    // },
+
     // serverComponentsHmrCache: true, // Cache fetch in Server Components, to reduce API calls.
     // staleTimes: {
     //   dynamic: 0, // TODO: Consider also caching dynamic pages, client side.

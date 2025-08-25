@@ -44,7 +44,7 @@ export default async function Baz() {
 
   return (
     <>
-      <h1>In baz subpath (using unstable_cache)</h1>
+      <h1 className="text-3xl font-bold mb-4">In baz subpath (using unstable_cache)</h1>
       <hr />
       <p>Pokemon name: {pokemon.name}</p>
       <p>Weight: {pokemon.weight}</p>
@@ -63,7 +63,7 @@ export default async function Baz() {
       )}
       <div>
         <strong>Abilities:</strong>
-        <ul>
+        <ul className="list-disc list-inside">
           {pokemon.abilities?.map((ability) => (
             <li key={ability.ability.name}>{ability.ability.name}</li>
           ))}

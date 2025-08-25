@@ -1,3 +1,7 @@
+// import {
+//   unstable_cacheLife as cacheLife,
+//   unstable_cacheTag as cacheTag,
+// } from "next/cache";
 import Image from "next/image";
 
 interface PokemonAbility {
@@ -18,28 +22,39 @@ interface Pokemon {
   abilities: PokemonAbility[];
 }
 
-async function fetchPokemon(type: string): Promise<Pokemon> {
+// Test `use cache`.
+// Tags: ["pokemon-use-cache", "pokemon-charizard"],
+// Lifetime: 600 seconds (10 minutes).
+async function fetchCachedPokemon(type: string): Promise<Pokemon> {
+  // "use cache: custom";
+  // cacheTag("pokemon-use-cache", "pokemon-charizard");
+  // cacheLife("frequent"); // 10 minutes.
+
   console.log("Fetching pokemon data for type:", type);
-  return fetch(`https://pokeapi.co/api/v2/pokemon/${type}`, {
-    // Revalidate every 10 minutes.
-    next: {
-      revalidate: 600,
-      tags: ["pokemon", `pokemon-${type}`],
-    },
-  }).then((res) => res.json());
+  console.log(
+    `Using regular fetch cache, as third-party Redis cacheHandler does not yet support "use cache"`,
+  );
+  const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${type}`, {
+    next: { tags: ["pokemon-use-cache", "pokemon-charizard"], revalidate: 600 },
+  });
+  return response.json();
 }
 
-export default async function Foo() {
-  const pokemon = await fetchPokemon("ditto");
+export default async function Qux() {
+  console.log("Qux component rendering");
+
+  const pokemon = await fetchCachedPokemon("charizard");
 
   if (pokemon?.name) {
     console.log("Fetched pokemon:", pokemon.name);
   }
 
-  console.log("Foo component rendering");
   return (
     <>
-      <h1 className="text-3xl font-bold mb-4">In foo subpath</h1>
+      <h1 className="text-3xl font-bold mb-4">
+        In qux subpath (not using use cache, due to limited support from
+        3rd-party Redis cacheHandler)
+      </h1>
       <hr />
       <p>Pokemon name: {pokemon.name}</p>
       <p>Weight: {pokemon.weight}</p>

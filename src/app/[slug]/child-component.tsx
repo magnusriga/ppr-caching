@@ -1,13 +1,11 @@
-// import { headers } from "next/headers";
-
 export default async function ChildComponent({ slug }: { slug: string }) {
-  // const next_headers = await headers();
   console.log("Child Component rendering");
   return (
     <>
-      <h1>Child Component - Slug: {slug}</h1>
+      <h1 className="text-3xl font-bold mb-4">
+        Child Component - Slug: {slug}
+      </h1>
       <hr />
-      <p>HEEEEEELOOOOOOOOOOO **** IN PAGE CACHE???</p>
       {/* <div>Child Component - Headers from next: {next_headers}</div> */}
     </>
   );
