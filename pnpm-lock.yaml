@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@fortedigital/nextjs-cache-handler':
-        specifier: 2.1.0-canary10
-        version: 2.1.0-canary10(@redis/client@5.8.2)(next@15.5.1-canary.7(react-dom@19.1.0(react@19.1.0))(react@19.1.0))
+        specifier: 2.1.0-canary.12
+        version: 2.1.0-canary.12(@redis/client@5.8.2)(next@15.5.1-canary.7(react-dom@19.1.0(react@19.1.0))(react@19.1.0))
       '@trieb.work/nextjs-turbo-redis-cache':
         specifier: ^1.8.1
         version: 1.8.1(next@15.5.1-canary.7(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(redis@5.8.2)
@@ -111,8 +111,8 @@ packages:
   '@emnapi/runtime@1.4.5':
     resolution: {integrity: sha512-++LApOtY0pEEz1zrd9vy1/zXVaVJJ/EbAF3u0fXIzPJEDtnITsBGbbK0EkM72amhl/R5b+5xx0Y/QhcVOpuulg==}
 
-  '@fortedigital/nextjs-cache-handler@2.1.0-canary10':
-    resolution: {integrity: sha512-qaHIdrkMbFylrYEyKFq7BDDGVEGhvrSxJcWbp15chUus+xrHf5QgByG5MS+RMF9YHwftEdXHbJazHSVDQiU5IA==}
+  '@fortedigital/nextjs-cache-handler@2.1.0-canary.12':
+    resolution: {integrity: sha512-Pu+cZFokDR6IVKvV/RmmcE2tDo1YVRLNRnNXqrIAhDJ5OfHBhZaTEqIITF/d3624+MNeE/OgHjClbs2mMCE9Lw==}
     engines: {node: '>=22.0.0'}
     peerDependencies:
       '@redis/client': '>= 5.5.6'
@@ -339,8 +339,8 @@ packages:
     peerDependencies:
       '@redis/client': ^5.8.2
 
-  '@rollup/rollup-linux-x64-gnu@4.48.0':
-    resolution: {integrity: sha512-GUdZKTeKBq9WmEBzvFYuC88yk26vT66lQV8D5+9TgkfbewhLaTHRNATyzpQwwbHIfJvDJ3N9WJ90wK/uR3cy3Q==}
+  '@rollup/rollup-linux-x64-gnu@4.48.1':
+    resolution: {integrity: sha512-90taWXCWxTbClWuMZD0DKYohY1EovA+W5iytpE89oUPmT5O1HFdf8cuuVIylE6vCbrGdIGv85lVRzTcpTRZ+kA==}
     cpu: [x64]
     os: [linux]
 
@@ -737,14 +737,14 @@ snapshots:
       tslib: 2.8.1
     optional: true
 
-  '@fortedigital/nextjs-cache-handler@2.1.0-canary10(@redis/client@5.8.2)(next@15.5.1-canary.7(react-dom@19.1.0(react@19.1.0))(react@19.1.0))':
+  '@fortedigital/nextjs-cache-handler@2.1.0-canary.12(@redis/client@5.8.2)(next@15.5.1-canary.7(react-dom@19.1.0(react@19.1.0))(react@19.1.0))':
     dependencies:
       '@redis/client': 5.8.2
       cluster-key-slot: 1.1.2
       lru-cache: 11.1.0
       next: 15.5.1-canary.7(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
     optionalDependencies:
-      '@rollup/rollup-linux-x64-gnu': 4.48.0
+      '@rollup/rollup-linux-x64-gnu': 4.48.1
 
   '@img/sharp-darwin-arm64@0.34.3':
     optionalDependencies:
@@ -901,7 +901,7 @@ snapshots:
     dependencies:
       '@redis/client': 5.8.2
 
-  '@rollup/rollup-linux-x64-gnu@4.48.0':
+  '@rollup/rollup-linux-x64-gnu@4.48.1':
     optional: true
 
   '@swc/helpers@0.5.15':

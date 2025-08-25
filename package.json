@@ -5,15 +5,15 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build-default": "next build --turbopack",
-    "build-new": "rm -rf .next .turbo cache && next build --debug-prerender && cp -r public .next/standalone/ && cp -r .next/static .next/standalone/.next && cp -r .next/cache/fetch-cache .next/standalone/.next/cache",
-    "build": "rm -rf .next .turbo cache && next build --debug-prerender && cp -r public .next/standalone/ && cp -r .next/static .next/standalone/.next",
+    "build": "rm -rf .next .turbo cache && next build --debug-prerender && cp -r public .next/standalone/ && cp -r .next/static .next/standalone/.next && mkdir -p .next/standalone/.next/cache/fetch-cache && cp -r .next/cache/fetch-cache .next/standalone/.next/cache",
+    "build-old": "rm -rf .next .turbo cache && next build --debug-prerender && cp -r public .next/standalone/ && cp -r .next/static .next/standalone/.next",
     "start-old": "next start",
     "start": "set -a && source ./.env.local && PORT=3001 NODE_ENV=production  NEXT_PRIVATE_DEBUG_CACHE=1 node .next/standalone/server.js",
     "lint": "biome check",
     "format": "biome format --write"
   },
   "dependencies": {
-    "@fortedigital/nextjs-cache-handler": "2.1.0-canary10",
+    "@fortedigital/nextjs-cache-handler": "2.1.0-canary.12",
     "@trieb.work/nextjs-turbo-redis-cache": "^1.8.1",
     "next": "15.5.1-canary.7",
     "react": "19.1.0",
