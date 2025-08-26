@@ -11,7 +11,8 @@ const nextConfig: NextConfig = {
     ],
   },
 
-  cacheHandler: require.resolve("./cache-handler-forte.mjs"),
+  // cacheHandler: require.resolve("./cache-handler-forte.mjs"),
+  cacheHandler: require.resolve("./cache-handler-simple.mjs"),
 
   experimental: {
     mdxRs: true,
