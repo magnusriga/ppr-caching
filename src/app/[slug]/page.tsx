@@ -10,7 +10,13 @@ export default async function Home({
   const { slug } = await params;
   return (
     <main className="flex flex-col gap-8">
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense
+        fallback={
+          <div className="border-red-300 border-2 p-4 rounded-lg">
+            Loading...
+          </div>
+        }
+      >
         <DynamicComponent slug={slug} />
       </Suspense>
       <Image

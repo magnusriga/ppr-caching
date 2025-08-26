@@ -16,14 +16,9 @@ export async function generateStaticParams() {
 async function RandomComponent() {
   await connection();
   return (
-    <>
-      <div>
-        Random number, should not change due to caching: {Math.random() * 10}
-      </div>
-      <div>
-        Date, should not change due to caching: {new Date().toISOString()}
-      </div>
-    </>
+    <div className="border-red-300 border-2 p-4 rounded-lg">
+      Random number: {Math.random() * 10} | Dat: {new Date().toISOString()}
+    </div>
   );
 }
 
@@ -43,14 +38,34 @@ export default async function SlugLayout({
            * - It should also be marked for request-time updates, via `await connection()`.
            * - Since now Dynamic API due to `await connection()`, wrap in `Suspense`.
            */}
-          <Suspense fallback={<div>Loading Math.random component...</div>}>
+          <Suspense
+            fallback={
+              <div className="border-red-300 border-2 p-4 rounded-lg">
+                Loading Math.random component...
+              </div>
+            }
+          >
             <RandomComponent />
           </Suspense>
-          <Suspense fallback={<div>Loading navigation...</div>}>
+          <Suspense
+            fallback={
+              <div className="border-red-300 border-2 p-4 rounded-lg">
+                Loading navigation...
+              </div>
+            }
+          >
             <Nav />
             {/* <div>Navigation Placeholder</div> */}
           </Suspense>
-          <Suspense>{children}</Suspense>
+          <Suspense
+            fallback={
+              <div className="border-yellow-300 border-2 p-4 rounded-lg">
+                Loading layout children...
+              </div>
+            }
+          >
+            {children}
+          </Suspense>
         </div>
       </body>
     </html>

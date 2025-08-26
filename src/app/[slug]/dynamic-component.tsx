@@ -5,14 +5,9 @@ export default async function DynamicComponent({ slug }: { slug: string }) {
   const nextHeaders = await headers();
 
   return (
-    <>
-      <h1 className="text-3xl font-bold mb-4">
-        Dynamic Component - Slug: {slug}
-      </h1>
-      <hr />
-      <div>
-        Dynamic Component - Host header from next: {nextHeaders.get("host")}
-      </div>
-    </>
+    <div className="border-red-300 border-2 p-4 rounded-lg">
+      Dynamic Component - slug: {slug} - Next host header:{" "}
+      {nextHeaders.get("host")}
+    </div>
   );
 }

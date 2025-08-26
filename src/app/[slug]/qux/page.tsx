@@ -43,7 +43,7 @@ async function slowFetch() {
     const randomNum = Math.random() * 100;
     const date = new Date().toISOString();
 
-    return `<----> SLOOOW DATA <----> ${randomNum} at ${date}`;
+    return `${randomNum} | ${date}`;
   });
 
   const data = await promise;
@@ -110,30 +110,33 @@ export default async function Qux() {
   return (
     <>
       <h1 className="text-3xl font-bold mb-4">
-        <span>In qux subpath</span>
+        In qux subpath{" "}
         {useCache ? (
-          <span>
-            (not using use cache, due to limited support from 3rd-party Redis
-            cacheHandler)
-          </span>
+          <span>(with use cache)</span>
         ) : (
-          <span>(using use cache)</span>
+          <span>(without use cache)</span>
         )}
       </h1>
-      <Suspense fallback={<div>Loading child component...</div>}>
-        {/* <Nav /> */}
+      <Suspense
+        fallback={
+          <div className="border-red-300 border-2 p-4 rounded-lg">
+            Loading dynamic component...
+          </div>
+        }
+      >
         <DynamicComponent slug="qux" />
       </Suspense>
-      <div>
-        Random number, generated late in render: {Math.random() * 10}
-        Random number, generated first in component: {randomNum}
+      <hr className="my-4" />
+      <div>Random number, generated late in render: {randomNum}</div>
+      <div>Date, generated late in render: {date}</div>
+      <hr className="my-4" />
+      <div className="text-blue-600">
+        Slow data (4s delay), notice how it equals the cached page for 4
+        seconds, before becoming new data from server render:
+        <br />
+        {slowData}
       </div>
-      <div>
-        Date, generated late in render: {new Date().toISOString()}
-        Date, generated first in component: {date}
-      </div>
-      <div>Slow data (4s delay): {slowData}</div>
-      <hr />
+      <hr className="my-4" />
       <p>Pokemon name: {pokemon.name}</p>
       <p>Weight: {pokemon.weight}</p>
       <p>Height: {pokemon.height}</p>
