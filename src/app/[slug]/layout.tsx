@@ -23,12 +23,11 @@ export default function SlugLayout({
       <body className={`${geist.variable} antialiased`}>
         <div className="p-4">
           <div>
-            Random number, should not change despite re-rendering:{" "}
+            Random number, should not change due to caching:{" "}
             {Math.random() * 10}
           </div>
           <div>
-            Date, should not change despite re-rendering:{" "}
-            {new Date().toISOString()}
+            Date, should not change due to caching: {new Date().toISOString()}
           </div>
           <Suspense fallback={<div>Loading navigation...</div>}>
             <Nav />

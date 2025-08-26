@@ -76,11 +76,10 @@ export default async function Qux() {
         )}
       </h1>
       <div>
-        Random number, should not change despite re-rendering:{" "}
-        {Math.random() * 10}
+        Random number, should not change due to caching: {Math.random() * 10}
       </div>
       <div>
-        Date, should not change despite re-rendering: {new Date().toISOString()}
+        Date, should not change due to caching: {new Date().toISOString()}
       </div>
       <hr />
       <p>Pokemon name: {pokemon.name}</p>
