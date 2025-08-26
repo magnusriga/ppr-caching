@@ -1,6 +1,12 @@
 {
   "permissions": {
-    "allow": ["Bash(pnpm run:*)", "Bash(node:*)", "Bash(pnpm start:*)"],
+    "allow": [
+      "Bash(pnpm run:*)",
+      "Bash(node:*)",
+      "Bash(pnpm start:*)",
+      "WebFetch(domain:github.com)",
+      "WebSearch"
+    ],
     "deny": [],
     "ask": []
   }

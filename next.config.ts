@@ -28,10 +28,10 @@ const nextConfig: NextConfig = {
      * Usage in file: `use cache: custom`.
      */
     // cacheHandlers: {
-    //   custom: require.resolve("./cache-handler-forte.mjs"),
-    //   default: require.resolve("./cache-handler-forte.mjs"),
-    //   remote: require.resolve("./cache-handler-forte.mjs"),
-    //   static: require.resolve("./cache-handler-forte.mjs"),
+    //   custom: require.resolve("./cache-handler-forte-new.mjs"),
+    //   // default: require.resolve("./cache-handler-forte-new.mjs"),
+    //   // remote: require.resolve("./cache-handler-forte-new.mjs"),
+    //   // static: require.resolve("./cache-handler-forte-new.mjs"),
     //   // [handlerName: string]: string | undefined
     // },
 

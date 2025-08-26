@@ -17,12 +17,22 @@ export default function SlugLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  console.log("<------> RENDERING LAYOUT <---------->");
   return (
     <html lang="en">
       <body className={`${geist.variable} antialiased`}>
         <div className="p-4">
+          <div>
+            Random number, should not change despite re-rendering:{" "}
+            {Math.random() * 10}
+          </div>
+          <div>
+            Date, should not change despite re-rendering:{" "}
+            {new Date().toISOString()}
+          </div>
           <Suspense fallback={<div>Loading navigation...</div>}>
             <Nav />
+            {/* <div>Navigation Placeholder</div> */}
           </Suspense>
           <Suspense>{children}</Suspense>
         </div>
