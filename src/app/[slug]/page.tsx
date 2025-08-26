@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { Suspense } from "react";
-import ChildComponent from "./child-component";
+import DynamicComponent from "./dynamic-component";
 
 export default async function Home({
   params,
@@ -11,7 +11,7 @@ export default async function Home({
   return (
     <main className="flex flex-col gap-8">
       <Suspense fallback={<div>Loading...</div>}>
-        <ChildComponent slug={slug} />
+        <DynamicComponent slug={slug} />
       </Suspense>
       <Image
         className="dark:invert"
