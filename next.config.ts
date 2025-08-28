@@ -15,6 +15,7 @@ const nextConfig: NextConfig = {
   // cacheHandler: require.resolve("./cache-handler-simple.mjs"),
 
   experimental: {
+    // clientSegmentCache: true,
     mdxRs: true,
     ppr: true,
     // useCache: true,

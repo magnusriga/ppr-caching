@@ -33,8 +33,9 @@ export default async function middleware(
   //   to avoid infinite loop if using `redirect()` above.
   if (!pathname.includes(subdomain)) {
     const newUrl = new URL(`/${subdomain}${pathname}`, req.url);
-    console.log(`Rewriting to ${newUrl}`);
+    console.log(`Redirecting to ${newUrl}`);
     return NextResponse.redirect(newUrl);
+    // console.log(`Rewriting to ${newUrl}`);
     // return NextResponse.rewrite(newUrl);
   }
 

@@ -6,26 +6,9 @@
 import { unstable_cache } from "next/cache";
 import Image from "next/image";
 import { Suspense } from "react";
+import { LoadingSpinner } from "@/app/loading-spinner";
+import { fetchCachedPokemon } from "@/lib/get-pokemon";
 import DynamicComponent from "../dynamic-component";
-import Nav from "../nav";
-
-interface PokemonAbility {
-  ability: {
-    name: string;
-  };
-}
-
-interface PokemonSprites {
-  front_default: string | null;
-}
-
-interface Pokemon {
-  name: string;
-  weight: number;
-  height: number;
-  sprites: PokemonSprites;
-  abilities: PokemonAbility[];
-}
 
 const useCache = false;
 
@@ -58,32 +41,6 @@ async function slowFetch() {
  * done.
  */
 
-async function fetchCachedPokemon(type: string): Promise<Pokemon> {
-  // "use cache: custom";
-  // cacheTag("pokemon-use-cache", "pokemon-charizard");
-  // cacheLife("frequent"); // 10 minutes.
-
-  console.log("Fetching pokemon data for type:", type);
-  let response: Response;
-
-  if (useCache) {
-    console.log("<-----> FETCHING using fetch cache with 'use cache' <----->");
-    response = await fetch(`https://pokeapi.co/api/v2/pokemon/${type}`);
-  } else {
-    console.log(
-      `<----> FETCHING using regular fetch cache, as third-party Redis cacheHandler does not yet support "use cache" <----->`,
-    );
-    response = await fetch(`https://pokeapi.co/api/v2/pokemon/${type}`, {
-      next: {
-        tags: ["pokemon-use-cache", "pokemon-charizard"],
-        revalidate: 600,
-      },
-    });
-  }
-
-  return response.json();
-}
-
 export default async function Qux() {
   console.log("<------> Qux component rendering <---------->");
 
@@ -102,11 +59,12 @@ export default async function Qux() {
    * - Get early error on build, with `cacheComponents: true`. <-- Gives heads up.
    * - OK with `Date.now()` | `Math.random()` AFTER Dynamic API | uncached data.
    */
-  const slowData = await slowFetch();
+  // const slowData = await slowFetch();
+  const slowData = await slowFetchCached();
 
-  const date = Date.now();
-  const randomNum = Math.random() * 100;
-
+  // const date = Date.now();
+  // const randomNum = Math.random() * 100;
+  //
   return (
     <>
       <h1 className="text-3xl font-bold mb-4">
@@ -119,17 +77,15 @@ export default async function Qux() {
       </h1>
       <Suspense
         fallback={
-          <div className="border-red-300 border-2 p-4 rounded-lg">
-            Loading dynamic component...
-          </div>
+          <LoadingSpinner className="border-red-300 border-2 p-4 rounded-lg" />
         }
       >
         <DynamicComponent slug="qux" />
       </Suspense>
       <hr className="my-4" />
-      <div>Random number, generated late in render: {randomNum}</div>
-      <div>Date, generated late in render: {date}</div>
-      <hr className="my-4" />
+      {/* <div>Random number, generated late in render: {randomNum}</div> */}
+      {/* <div>Date, generated late in render: {date}</div> */}
+      {/* <hr className="my-4" /> */}
       <div className="text-blue-600">
         Slow data (4s delay), notice how it equals the cached page for 4
         seconds, before becoming new data from server render:
