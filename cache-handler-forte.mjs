@@ -12,7 +12,7 @@ async function setupRedisClient() {
     try {
       const redisClient = createClient({
         url: process.env.REDIS_URL,
-        pingInterval: 10000,
+        pingInterval: 1000,
       });
 
       redisClient.on("error", (e) => {

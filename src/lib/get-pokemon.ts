@@ -19,10 +19,6 @@ interface Pokemon {
 const useCache = false;
 
 export async function fetchCachedPokemon(type: string): Promise<Pokemon> {
-  // "use cache: custom";
-  // cacheTag("pokemon-use-cache", "pokemon-charizard");
-  // cacheLife("frequent"); // 10 minutes.
-
   console.log("Fetching pokemon data for type:", type);
   let response: Response;
 
@@ -43,3 +39,31 @@ export async function fetchCachedPokemon(type: string): Promise<Pokemon> {
 
   return response.json();
 }
+
+// const pokemon = {
+//   name: "charizard",
+//   weight: 905,
+//   height: 17,
+//   sprites: {
+//     front_default:
+//       "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/6.png",
+//   },
+//   abilities: [
+//     {
+//       ability: {
+//         name: "blaze",
+//         url: "https://pokeapi.co/api/v2/ability/66/",
+//       },
+//       is_hidden: false,
+//       slot: 1,
+//     },
+//     {
+//       ability: {
+//         name: "solar-power",
+//         url: "https://pokeapi.co/api/v2/ability/94/",
+//       },
+//       is_hidden: true,
+//       slot: 3,
+//     },
+//   ],
+// };

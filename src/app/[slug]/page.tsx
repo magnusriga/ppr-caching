@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { Suspense } from "react";
+import { LoadingSpinner } from "../loading-spinner";
 import DynamicComponent from "./dynamic-component";
 
 export default async function Home({
@@ -12,9 +13,7 @@ export default async function Home({
     <main className="flex flex-col gap-8">
       <Suspense
         fallback={
-          <div className="border-red-300 border-2 p-4 rounded-lg">
-            Loading...
-          </div>
+          <LoadingSpinner className="border-red-300 border-2 p-4 rounded-lg" />
         }
       >
         <DynamicComponent slug={slug} />

@@ -1,38 +1,13 @@
-// import {
-//   unstable_cacheLife as cacheLife,
-//   unstable_cacheTag as cacheTag,
-// } from "next/cache";
-
-import { unstable_cache } from "next/cache";
 import Image from "next/image";
 import { Suspense } from "react";
+import { actionRevalidateTag } from "@/app/actions";
 import { LoadingSpinner } from "@/app/loading-spinner";
 import { fetchCachedPokemon } from "@/lib/get-pokemon";
+import { slowFetch, slowFetchCached } from "@/lib/slow-fetch";
+import { ButtonRevalidateRh, ButtonRevalidateSa } from "../client-component";
 import DynamicComponent from "../dynamic-component";
 
 const useCache = false;
-
-const slowFetchCached = unstable_cache(slowFetch, [], {
-  tags: ["slow-fetch"],
-  revalidate: 600, // seconds
-});
-
-async function slowFetch() {
-  const promise = new Promise((resolve) =>
-    setTimeout(() => resolve(true), 4000),
-  ).then(() => {
-    console.log("<-----> Slow fetch finished <----->");
-
-    const randomNum = Math.random() * 100;
-    const date = new Date().toISOString();
-
-    return `${randomNum} | ${date}`;
-  });
-
-  const data = await promise;
-
-  return data;
-}
 
 /**
  * NOTE:
@@ -60,11 +35,14 @@ export default async function Qux() {
    * - OK with `Date.now()` | `Math.random()` AFTER Dynamic API | uncached data.
    */
   // const slowData = await slowFetch();
+  // const slowData = "slowData static";
+  // const slowData = await slowFetch();
   const slowData = await slowFetchCached();
+  // const slowData2 = await slowFetchCached();
 
   // const date = Date.now();
   // const randomNum = Math.random() * 100;
-  //
+
   return (
     <>
       <h1 className="text-3xl font-bold mb-4">
@@ -83,12 +61,48 @@ export default async function Qux() {
         <DynamicComponent slug="qux" />
       </Suspense>
       <hr className="my-4" />
+      {/* <Suspense fallback={<LoadingSpinner className="inline-block ml-2" />}> */}
+      <div className="flex gap-4">
+        <ButtonRevalidateRh tag="slow-fetch" /> |
+        <ButtonRevalidateSa tag="slow-fetch" />
+      </div>
+      {/* </Suspense> */}
+      <hr className="my-4" />
       {/* <div>Random number, generated late in render: {randomNum}</div> */}
       {/* <div>Date, generated late in render: {date}</div> */}
       {/* <hr className="my-4" /> */}
       <div className="text-blue-600">
-        Slow data (4s delay), notice how it equals the cached page for 4
-        seconds, before becoming new data from server render:
+        Slow data, notes (assuming PPR):
+        <ul className="list-disc list-inside">
+          <li>
+            If data is not cached, then on reload:
+            <br />
+            Random number below will equal cached page for 4 seconds,
+            <br />
+            before becoming new data from server render when entire route is
+            done re-rendering.
+            <br />
+            Because, without data caching, entire route becomes dynamic,
+            <br />
+            only using the cached page as fallback when re-rendering route.
+          </li>
+          <li>
+            If route did not use Dynamic API, then the cached page would not be
+            updated until revalidated.
+          </li>
+          <li>
+            If data IS cached, then cached page is always shown and not updated
+            until revalidated,
+            <br />
+            regardless of Dynamic API usage in route.
+          </li>
+          <li>
+            Because, PPR only updates component with Dynamic API,
+            <br />
+            evend though it re-renders entire route server-side to ready the
+            Dynamic API component.
+          </li>
+        </ul>
         <br />
         {slowData}
       </div>

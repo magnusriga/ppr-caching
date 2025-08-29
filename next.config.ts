@@ -15,7 +15,7 @@ const nextConfig: NextConfig = {
   // cacheHandler: require.resolve("./cache-handler-simple.mjs"),
 
   experimental: {
-    // clientSegmentCache: true,
+    clientSegmentCache: true, // Needed to avoid links handing when cache entry missing.
     mdxRs: true,
     ppr: true,
     // useCache: true,
@@ -50,9 +50,29 @@ const nextConfig: NextConfig = {
 
     // serverComponentsHmrCache: true, // Cache fetch in Server Components, to reduce API calls.
 
+    /**
+     * `staleTimes`:
+     * - Changes Router Cache duration for `layout.tsx`,
+     *   and enables Router Cache for `page.tsx`.
+     * - Ensures `page.tsx` RSC payload + HTML is cached client-side, like `layout.tsx`.
+     * - Ensures instant navigation.
+     * - Applies to both `layout.tsx` and `page.tsx`.
+     * - Default: Static components of `layout.tsx`, `300` (5m).
+     * - Invalidate:
+     *   - Server Action (*not* RH): `revalidateTag|Path()` | `cookies.set|delete()`.
+     *   - `router.refresh()`.
+     * - Does not affect browser back|forward caching, handled by browser's `bfcache`,
+     *   to prevent layout shift and keep scroll position.
+     */
     // staleTimes: {
-    //   dynamic: 0, // TODO: Consider also caching dynamic pages, client side.
-    //   static: 300, // Caches static page components for 5 minutes (60 * 5), just like layouts.
+    /**
+     * - Ensures components with Dynamic API *also* cached, client-side.
+     * - Avoids waiting for route to rerender on every navigation,
+     *   to update Dynamic API component in `page.tsx`.
+     * - Result: Instant navigation, no loading state.
+     */
+    // dynamic: 60,
+    // static: 60,
     // },
   },
 
