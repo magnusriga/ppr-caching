@@ -1,6 +1,5 @@
 import Image from "next/image";
 import { Suspense } from "react";
-import { actionRevalidateTag } from "@/app/actions";
 import { LoadingSpinner } from "@/app/loading-spinner";
 import { fetchCachedPokemon } from "@/lib/get-pokemon";
 import { slowFetch, slowFetchCached } from "@/lib/slow-fetch";

@@ -60,15 +60,13 @@ export default async function SlugLayout({
             <Nav />
             {/* <div>Navigation Placeholder</div> */}
           </Suspense>
-          {/* <Suspense */}
-          {/*   fallback={ */}
-          {/*     <div className="border-yellow-300 border-2 p-4 rounded-lg"> */}
-          {/*       Loading layout children... */}
-          {/*     </div> */}
-          {/*   } */}
-          {/* > */}
-          {children}
-          {/* </Suspense> */}
+          <Suspense
+            fallback={
+              <LoadingSpinner className="border-red-300 border-2 p-4 rounded-lg" />
+            }
+          >
+            {children}
+          </Suspense>
         </div>
       </body>
     </html>
